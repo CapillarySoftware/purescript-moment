@@ -1,0 +1,22 @@
+{
+  "name": "purescript-moment",
+  "private": false,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "*Test.purs",
+    "example",
+    "tmp"
+  ],
+  "dependencies": {
+    "moment": "~2.8.3",
+    "purescript-oo-ffi": "~0.0.1",
+    "purescript-maybe": "~0.2.1",
+    "purescript-enums": "~0.2.0",
+    "purescript-foldable-traversable": "~0.1.3"
+  },
+  "devDependencies": {
+    "purescript-debug-foreign": "*"
+  }
+}
