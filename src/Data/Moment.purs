@@ -37,6 +37,10 @@ method1' s a m = method1 s (clone m) a
 method2' :: forall a b. String -> a -> b -> Moment -> Moment
 method2' s a b m = method2 s (clone m) a b
 
+foreign import invalid """
+  var invalid = moment.invalid();
+""" :: Moment
+
 isValid :: Moment -> Boolean
 isValid = method0 "isValid"
 
@@ -46,8 +50,8 @@ isValidAt = method0 "isValidAt"
 clone :: Moment -> Moment
 clone = method0 "clone"
 
-
-
+format :: String -> Moment -> String
+format = flip $ method1 "format"
 
 
 
