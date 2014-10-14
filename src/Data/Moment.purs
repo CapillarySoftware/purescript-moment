@@ -16,14 +16,44 @@ type Unix         = Number
 -- timezone
 type Zone         = Number
 
-type Milliseconds = Number
-type Seconds      = Number
-type Minutes      = Number
-type Hours        = Number 
-type Months       = Number
-type Weeks        = Number
-type Years        = Number
-type Days         = Number
+data Time         = Milliseconds Number
+                  | Seconds Number
+                  | Minutes Number
+                  | Hours Number 
+                  | Months Number
+                  | Weeks Number
+                  | Years Number
+                  | Days Number
+
+foldTime :: Time -> Number
+foldTime (Milliseconds x) = x
+foldTime (Seconds x)      = x
+foldTime (Minutes x)      = x
+foldTime (Hours x)        = x
+foldTime (Months x)       = x
+foldTime (Weeks x)        = x
+foldTime (Years x)        = x
+foldTime (Days x)         = x
+
+stringTime :: Time -> String
+stringTime (Milliseconds _) = "ms"
+stringTime (Seconds _)      = "s"
+stringTime (Minutes _)      = "m"
+stringTime (Hours _)        = "h"
+stringTime (Months _)       = "M"
+stringTime (Weeks _)        = "w"
+stringTime (Years _)        = "y"
+stringTime (Days _)         = "d"
+
+instance showTime :: Show Time where
+  show (Milliseconds x) = "Milliseconds " ++ show x
+  show (Seconds x)      = "Seconds "      ++ show x
+  show (Minutes x)      = "Minutes "      ++ show x
+  show (Hours x)        = "Hours "        ++ show x
+  show (Months x)       = "Months "       ++ show x
+  show (Weeks x)        = "Weeks "        ++ show x
+  show (Years x)        = "Years "        ++ show x
+  show (Days x)         = "Days "         ++ show x
 
 type DayOfMonth   = Number
 type DayOfYear    = Number
@@ -131,14 +161,36 @@ instance showMonth :: Show Month where
   show December  = "December"
 
 type MomentObj = {
-    years       :: Years,
-    months      :: Months,
-    days        :: Days,
-    hours       :: Hours,
-    minutes     :: Minutes,
-    seconds     :: Seconds,
-    milliseconds:: Milliseconds
+    years       :: Time,
+    months      :: Time,
+    days        :: Time,
+    hours       :: Time,
+    minutes     :: Time,
+    seconds     :: Time,
+    milliseconds:: Time
   }
+
+parseObjImpl  :: { years        :: Number
+                 , months       :: Number
+                 , days         :: Number
+                 , hours        :: Number
+                 , minutes      :: Number
+                 , seconds      :: Number
+                 , milliseconds :: Number } -> Moment
+
+parseObjImpl = unsafeToMoment
+
+parseObj :: MomentObj -> Maybe Moment
+parseObj mo = let 
+    f   = foldTime
+    mo' = parseObjImpl mo{ years        = f mo.years
+                         , months       = f mo.months
+                         , days         = f mo.days
+                         , hours        = f mo.hours
+                         , minutes      = f mo.minutes
+                         , seconds      = f mo.seconds
+                         , milliseconds = f mo.milliseconds}
+  in if isValid mo' then Just mo' else Nothing
 
 foreign import initMoment """
   moment().format()
@@ -172,6 +224,9 @@ foreign import unsafeToMoment """ function unsafeToMoment(e){ return m(e); }
 method1' :: forall a. String -> a -> Moment -> Moment
 method1' s a m = method1 s (clone m) a
 
+method2' :: forall a b. String -> a -> b -> Moment -> Moment
+method2' s a b m = method2 s (clone m) a b
+
 valueOf :: Moment -> Epoch
 valueOf = method0 "valueOf" 
 
@@ -193,29 +248,29 @@ setZone = method1' "zone"
 parseStringZ :: [String] -> String -> Maybe Moment
 parseStringZ ss s = setZone s <$> parseString ss s
 
-milliseconds :: Moment -> Milliseconds 
-milliseconds = method0 "milliseconds"
+milliseconds :: Moment -> Time 
+milliseconds = method0 "milliseconds" >>> Milliseconds
 
-setMilliseconds :: Milliseconds -> Moment -> Moment
-setMilliseconds = method1' "milliseconds"
+setMilliseconds :: Time -> Moment -> Moment
+setMilliseconds (Milliseconds m) = method1' "milliseconds" m
 
-seconds :: Moment -> Seconds
-seconds = method0 "seconds"
+seconds :: Moment -> Time
+seconds = method0 "seconds" >>> Seconds
 
-setSeconds :: Seconds -> Moment -> Moment
-setSeconds = method1' "seconds"
+setSeconds :: Time -> Moment -> Moment
+setSeconds (Seconds s) = method1' "seconds" s
 
-minutes :: Moment -> Minutes
-minutes = method0 "minutes"
+minutes :: Moment -> Time
+minutes = method0 "minutes" >>> Minutes
 
-setMinutes :: Minutes -> Moment -> Moment
-setMinutes = method1' "minutes"
+setMinutes :: Time -> Moment -> Moment
+setMinutes (Minutes m) = method1' "minutes" m
 
-hours :: Moment -> Hours
-hours = method0 "hours"
+hours :: Moment -> Time
+hours = method0 "hours" >>> Hours
 
-setHours :: Hours -> Moment -> Moment
-setHours = method1' "hours"
+setHours :: Time -> Moment -> Moment
+setHours (Hours h) = method1' "hours" h 
 
 dayOfMonth :: Moment -> DayOfMonth
 dayOfMonth = method0 "dates"
@@ -268,3 +323,8 @@ setYear = method1' "year"
 foreign import max "var max = moment.max;" :: Moment -> Moment -> Moment
 foreign import min "var min = moment.min;" :: Moment -> Moment -> Moment
 
+add :: Time -> Moment -> Moment
+add t = method2' "add" (foldTime t) (stringTime t)
+
+subtract :: Time -> Moment -> Moment
+subtract t = method2' "subtract" (foldTime t) (stringTime t)
