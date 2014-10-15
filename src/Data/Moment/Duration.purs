@@ -60,8 +60,11 @@ humanize = durToMDur >>> method0 "humanize"
 humanize' :: Duration -> String
 humanize' = durToMDur >>> flip (method1 "humanize") true
 
+asMilliseconds' :: MDuration -> Duration
+asMilliseconds' = method0 "asMilliseconds" >>> Milliseconds
+
 asMilliseconds :: Duration -> Duration
-asMilliseconds = durToMDur >>> method0 "asMilliseconds" >>> Milliseconds
+asMilliseconds = durToMDur >>> asMilliseconds'
 
 asSeconds :: Duration -> Duration
 asSeconds = durToMDur >>> method0 "asSeconds" >>> Seconds
@@ -80,3 +83,20 @@ asMonths = durToMDur >>> method0 "asMonths" >>> Months
 
 asYears :: Duration -> Duration
 asYears = durToMDur >>> method0 "asYears" >>> Years
+
+semigroupDurationImpl :: MDuration -> MDuration -> MDuration
+semigroupDurationImpl = method1 "add"
+
+instance durationSemigroup :: Semigroup Duration where
+  (<>) (Milliseconds a) (Milliseconds b) = Milliseconds $ a + b
+  (<>) (Seconds a)      (Seconds b)      = Seconds      $ a + b
+  (<>) (Minutes a)      (Minutes b)      = Minutes      $ a + b
+  (<>) (Hours  a)       (Hours  b)       = Hours        $ a + b
+  (<>) (Months a)       (Months b)       = Months       $ a + b
+  (<>) (Weeks a)        (Weeks b)        = Weeks        $ a + b
+  (<>) (Years a)        (Years b)        = Years        $ a + b
+  (<>) (Days a)         (Days b)         = Days         $ a + b
+  (<>) d d' = asMilliseconds' 
+            $ durToMDur d `semigroupDurationImpl` durToMDur d'
+
+

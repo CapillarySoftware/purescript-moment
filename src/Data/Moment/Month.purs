@@ -2,8 +2,8 @@ module Data.Moment.Month where
 
 import Data.Moment 
 import Data.Enum
-import Data.Foldable(elem)
-import Data.Array(take, elemIndex, (!!))
+import Data.Maybe
+import Data.Function(on)
 
 data Month = January
            | February 
@@ -17,8 +17,6 @@ data Month = January
            | October  
            | November 
            | December 
-
-months = [January, February, March, April, May, June, July, August, September, October, November, December]
 
 instance eqMonth :: Eq Month where 
   (==) January   January   = true
@@ -36,17 +34,38 @@ instance eqMonth :: Eq Month where
   (/=) _ _ = false
 
 instance ordMonth :: Ord Month where
-  compare a b | a == b = EQ
-  compare a b = if elem b $ take (elemIndex a months) months
-                then LT 
-                else GT
+  compare = compare `on` fromEnum
 
 instance enumMonth :: Enum Month where
   cardinality     = Cardinality 12
   firstEnum       = January
   lastEnum        = December
-  succ a = months !! (elemIndex a months + 1)
-  pred a = months !! (elemIndex a months - 1)
+
+  succ January    = Just February
+  succ February   = Just March
+  succ March      = Just April
+  succ April      = Just May
+  succ May        = Just June
+  succ June       = Just July
+  succ July       = Just August
+  succ August     = Just September
+  succ September  = Just October
+  succ October    = Just November
+  succ November   = Just December
+  succ December   = Nothing
+
+  pred January    = Nothing
+  pred February   = Just January
+  pred March      = Just February
+  pred April      = Just March
+  pred May        = Just April
+  pred June       = Just May
+  pred July       = Just June
+  pred August     = Just July
+  pred September  = Just August
+  pred October    = Just September
+  pred November   = Just October
+  pred December   = Just November
 
 instance showMonth :: Show Month where
   show January   = "January"

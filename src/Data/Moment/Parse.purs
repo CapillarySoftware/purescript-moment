@@ -43,17 +43,18 @@ foreign import parseUnix """
 """ :: Unix -> Moment
 
 foreign import parseString_ """
-  function parseString_(Nothing, Just, fs, s){ 
-    var m = moment(s, fs, true);
+  function parseString_(Nothing, Just, strict, fs, s){ 
+    var m = moment(s, fs, strict);
     return m.isValid() ? Just(m) : Nothing;
   }
-""" :: forall a e. Fn4 (Maybe Moment) (a -> Maybe Moment) [String] String (Maybe Moment)
-parseString = runFn4 parseString_ Nothing Just
+""" :: forall a e. Fn5 (Maybe Moment) (a -> Maybe Moment) Boolean [String] String (Maybe Moment)
+parseString = runFn5 parseString_ Nothing Just true
+parseStringForgiving = runFn5 parseString_ Nothing Just false
 
 parseEpoch :: Epoch -> Moment
 parseEpoch = unsafeToMoment
 
-foreign import unsafeToMoment """ function unsafeToMoment(e){ return m(e); }
+foreign import unsafeToMoment """ function unsafeToMoment(e){ return moment(e); }
 """ :: forall a. a -> Moment
 
 parseStringZ :: [String] -> String -> Maybe Moment
