@@ -21,14 +21,15 @@ type DayOfYear    = Number
 type WeekOfYear   = Number
 
 foreign import initMoment """
-  moment().format()
+  var initMoment;
+  moment().format();
 """ :: Unit
 
 foreign import data Moment :: *
 foreign import data Now    :: !
 
 foreign import now """
-  function now(){ return function(){ return moment(); }; }
+  function now(){ return moment(); }
 """ :: forall e. Eff (now :: Now | e) Moment
 
 method1' :: forall a. String -> a -> Moment -> Moment
@@ -53,7 +54,7 @@ clone = method0 "clone"
 format :: String -> Moment -> String
 format = flip $ method1 "format"
 
-
-
+calendar :: Moment -> String
+calendar = method0 "calendar"
 
 
