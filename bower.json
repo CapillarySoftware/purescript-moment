@@ -18,5 +18,6 @@
   },
   "devDependencies": {
     "purescript-debug-foreign": "*"
-  }
+  },
+  "version": "0.0.2"
 }
