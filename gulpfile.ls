@@ -47,6 +47,6 @@ gulp.task "doc" ->
   gulp.src "src/**/*.purs"
     .pipe fil 
     .pipe gulp-purescript.docgen()
-    .pipe gulp.dest "DocGen.md"
+    .pipe gulp.dest "README.md"
 
 gulp.task "travis"  <[test]>
